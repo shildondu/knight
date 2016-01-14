@@ -47,6 +47,9 @@ public class DefaultBeanFactory implements BeanFactory {
 		beanClazzs = ReflectUtil.getAnnotationClazzs(ClassScaner.loadClass(), Bean.class);
 	}
 	
+	/**
+	 * 开启定时任务
+	 */
 	private void startScheduledTask() {
 		Map<String, Class<?>> tasks = ReflectUtil.
 				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.SCHEDULE), Bean.class);
