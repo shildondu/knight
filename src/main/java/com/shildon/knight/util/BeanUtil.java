@@ -1,4 +1,4 @@
-package com.shildon.knight.ioc;
+package com.shildon.knight.util;
 
 /**
  * bean工具类
