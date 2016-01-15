@@ -42,6 +42,16 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 		return this.targetMethod;
 	}
 
+	@Override
+	public Object getTargetObject() {
+		return targetObject;
+	}
+
+	@Override
+	public Object[] getTargetParams() {
+		return targetParams;
+	}
+
 	/* --------------- getter and setter --------------- */
 	public Class<?> getTargetClass() {
 		return targetClass;
@@ -52,10 +62,6 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 		return this;
 	}
 
-	public Object getTargetObject() {
-		return targetObject;
-	}
-
 	public AbstractMethodInvocation setTargetObject(Object targetObject) {
 		this.targetObject = targetObject;
 		return this;
@@ -64,10 +70,6 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 	public AbstractMethodInvocation setTargetMethod(Method targetMethod) {
 		this.targetMethod = targetMethod;
 		return this;
-	}
-
-	public Object[] getTargetParams() {
-		return targetParams;
 	}
 
 	public AbstractMethodInvocation setTargetParams(Object[] targetParams) {

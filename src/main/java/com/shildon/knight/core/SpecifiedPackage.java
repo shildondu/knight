@@ -8,6 +8,9 @@ package com.shildon.knight.core;
  */
 public interface SpecifiedPackage {
 	
+	// 定时任务包名
 	public static final String SCHEDULE = "schedule";
+	// AOP拦截器相关包名
+	public static final String INTERCEPTOR = "interceptor";
 
 }

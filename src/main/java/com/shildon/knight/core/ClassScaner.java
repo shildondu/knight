@@ -44,6 +44,8 @@ public class ClassScaner {
 	static {
 		// 定时任务
 		specifiedPackages.put(SpecifiedPackage.SCHEDULE, new LinkedList<String>());
+		// AOP拦截
+		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR, new LinkedList<String>());
 	}
 	
 	// 通过标志域判断是否需要初始化指定的包名

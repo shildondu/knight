@@ -16,15 +16,18 @@ public class AbstractAdviceIntercept implements MethodIntercept, Advice {
 	
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) {
+		Method targetMethod = methodInvocation.getMethod();
+		Object targetObject = methodInvocation.getTargetObject();
+		Object[] targetParams = methodInvocation.getTargetParams();
 		Object result = null;
 
-		if (filter(methodInvocation.getMethod())) {
+		if (filter(targetMethod, targetObject, targetParams)) {
 			try {
-				beforeMethod();
+				beforeMethod(targetMethod, targetObject, targetParams);
 				result = methodInvocation.proceed();
-				afterMethod();
+				afterMethod(targetMethod, targetObject, targetParams);
 			} catch (Throwable e) {
-				afterException();
+				afterException(targetMethod, targetObject, targetParams);
 				e.printStackTrace();
 			}
 		}
@@ -33,22 +36,22 @@ public class AbstractAdviceIntercept implements MethodIntercept, Advice {
 
 	// 缺省方法实现
 	@Override
-	public boolean filter(Method method) {
+	public boolean filter(Method method, Object targetObject, Object[] targetParams) {
 		return true;
 	}
 
 	@Override
-	public void beforeMethod() {
+	public void beforeMethod(Method method, Object targetObject, Object[] targetParams) {
 		
 	}
 
 	@Override
-	public void afterMethod() {
+	public void afterMethod(Method method, Object targetObject, Object[] targetParams) {
 		
 	}
 
 	@Override
-	public void afterException() {
+	public void afterException(Method method, Object targetObject, Object[] targetParams) {
 		
 	}
 

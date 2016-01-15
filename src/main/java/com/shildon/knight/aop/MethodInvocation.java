@@ -13,5 +13,9 @@ public interface MethodInvocation {
 	public Object proceed() throws Throwable;
 	
 	public Method getMethod();
+	
+	public Object getTargetObject();
+	
+	public Object[] getTargetParams();
 
 }
