@@ -38,20 +38,17 @@ public class ReflectUtil {
 	 * @param annotationClass
 	 * @return
 	 */
-	public static Method[] getAnnotationMethods(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+	public static List<Method> getAnnotationMethods(Class<?> clazz, Class<? extends Annotation> annotationClass) {
 		Method[] methods = clazz.getDeclaredMethods();
 		List<Method> annotationMethods = new LinkedList<Method>();
-		int i = 0;
 		
 		for (Method method : methods) {
 			if (method.isAnnotationPresent(annotationClass)) {
 				method.setAccessible(true);
 				annotationMethods.add(method);
-				i++;
 			}
 		}
-		Method[] returnMethods = new Method[i];
-		return annotationMethods.toArray(returnMethods);
+		return annotationMethods;
 	}
 
 	/**
@@ -60,21 +57,18 @@ public class ReflectUtil {
 	 * @param annotationClass
 	 * @return
 	 */
-	public static Field[] getAnnotationFields(Class<?> clazz, Class<? extends Annotation> annotationClass) {
+	public static List<Field> getAnnotationFields(Class<?> clazz, Class<? extends Annotation> annotationClass) {
 		Field[] fields = clazz.getDeclaredFields();
 		List<Field> annotationFields = new LinkedList<Field>();
-		int i = 0;
 		
 		for (Field field : fields) {
 			if (field.isAnnotationPresent(annotationClass)) {
 				// 设置私有域可访问
 				field.setAccessible(true);
 				annotationFields.add(field);
-				i++;
 			}
 		}
-		Field[] returnFields = new Field[i];
-		return annotationFields.toArray(returnFields);
+		return annotationFields;
 	}
 
 }

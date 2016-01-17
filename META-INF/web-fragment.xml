@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-fragment 
+    xmlns=http://java.sun.com/xml/ns/javaee
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" version="3.0"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+    http://java.sun.com/xml/ns/javaee/web-fragment_3_0.xsd"
+    metadata-complete="true">
+    <listener>
+		<listener-class>com.shildon.knight.mvc.ContextLoader</listener-class>
+	</listener>
+	
+    <servlet>
+        <servlet-name>dispatcher</servlet-name>
+        <servlet-class>com.shildon.knight.mvc.DispatcherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>dispatcher</servlet-name>
+        <url-pattern>/*</url-pattern>
+    </servlet-mapping>
+</web-fragment>
