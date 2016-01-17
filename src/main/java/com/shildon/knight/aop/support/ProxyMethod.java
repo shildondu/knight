@@ -14,10 +14,18 @@ public class ProxyMethod {
 	private String methodName;
 	// 代理方法
 	private Method method;
+	// 代理方法的方法参数
+	private Class<?>[] methodParams;
 	
 	public ProxyMethod(String methodName, Method method) {
 		this.methodName = methodName;
 		this.method = method;
+	}
+	
+	public ProxyMethod(String methodNmae, Method method, Class<?>[] methodParams) {
+		this.methodName = methodNmae;
+		this.method = method;
+		this.methodParams = methodParams;
 	}
 
 	public String getMethodName() {
@@ -31,6 +39,14 @@ public class ProxyMethod {
 	}
 	public void setMethod(Method method) {
 		this.method = method;
+	}
+
+	public Class<?>[] getMethodParams() {
+		return methodParams;
+	}
+
+	public void setMethodParams(Class<?>[] methodParams) {
+		this.methodParams = methodParams;
 	}
 
 }

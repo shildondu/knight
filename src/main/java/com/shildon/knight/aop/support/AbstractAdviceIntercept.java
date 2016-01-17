@@ -12,7 +12,7 @@ import com.shildon.knight.aop.MethodInvocation;
  * @date Jan 13, 2016 3:08:11 PM
  *
  */
-public class AbstractAdviceIntercept implements MethodIntercept, Advice {
+public abstract class AbstractAdviceIntercept implements MethodIntercept, Advice {
 	
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) {
