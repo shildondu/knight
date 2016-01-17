@@ -4,6 +4,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +30,9 @@ import com.shildon.knight.ioc.annotation.Inject;
 import com.shildon.knight.task.Executor;
 import com.shildon.knight.task.annotation.Scheduled;
 import com.shildon.knight.task.support.ScheduledExecutor;
+import com.shildon.knight.transaction.annotation.Transaction;
+import com.shildon.knight.transaction.support.JdbcTransactionManager;
+import com.shildon.knight.transaction.support.TransactionAdviceIntercept;
 import com.shildon.knight.util.BeanUtil;
 import com.shildon.knight.util.ReflectUtil;
 
@@ -69,7 +73,7 @@ public class DefaultBeanFactory implements BeanFactory {
 		}
 		
 		for (final Class<?> clazz : tasks.values()) {
-			Method[] methods = ReflectUtil.getAnnotationMethods(clazz, Scheduled.class);
+			List<Method> methods = ReflectUtil.getAnnotationMethods(clazz, Scheduled.class);
 			
 			for (final Method method : methods) {
 				Annotation annotation = method.getAnnotation(Scheduled.class);
@@ -118,6 +122,8 @@ public class DefaultBeanFactory implements BeanFactory {
 	}
 	
 	private <T> T getProxyBean(Class<?> clazz) {
+		// 需要事务处理的方法
+		final List<Method> transacationMethods = ReflectUtil.getAnnotationMethods(clazz, Transaction.class);
 		List<Class<?>> clazzs = ClassScaner.loadClassBySpecify(SpecifiedPackage.INTERCEPTOR);
 		// 代理方法集合
 		List<ProxyMethod> beforeAdvices = new LinkedList<ProxyMethod>();
@@ -129,6 +135,21 @@ public class DefaultBeanFactory implements BeanFactory {
 		if (log.isDebugEnabled()) {
 			log.debug("proxy name: " + clazz.getName());
 			log.debug("interceptors: " + clazzs);
+		}
+		
+		// 配置事务处理拦截
+		if (null != transacationMethods && 0 != transacationMethods.size()) {
+			interceptors.add(new TransactionAdviceIntercept(new JdbcTransactionManager()) {
+				
+				@Override
+				public boolean filter(Method method, Object targetObject, Object[] targetParams) {
+					if (transacationMethods.contains(method)) {
+						return true;
+					} else {
+						return false;
+					}
+				};
+			});
 		}
 		
 		// 初始化beforeAdvices, afterAdvices, exceptionAdvices
@@ -154,7 +175,7 @@ public class DefaultBeanFactory implements BeanFactory {
 					}
 					
 					if (clazz.getName().equals(targetClass)) {
-						beforeAdvices.add(new ProxyMethod(targetMethod, method));
+						beforeAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterMethod.class)) {
 					Annotation afterMethod = method.getAnnotation(AfterMethod.class);
@@ -173,7 +194,7 @@ public class DefaultBeanFactory implements BeanFactory {
 					}
 					
 					if (clazz.getName().equals(targetClass)) {
-						afterAdvices.add(new ProxyMethod(targetMethod, method));
+						afterAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterException.class)) {
 					Annotation exceptionMethod = method.getAnnotation(AfterException.class);
@@ -192,7 +213,7 @@ public class DefaultBeanFactory implements BeanFactory {
 					}
 					
 					if (clazz.getName().equals(targetClass)) {
-						exceptionAdvices.add(new ProxyMethod(targetMethod, method));
+						exceptionAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				}
 			}
@@ -222,14 +243,7 @@ public class DefaultBeanFactory implements BeanFactory {
 				public void beforeMethod(Method method,
 						Object targetObject,
 						Object[] targetParams) {
-					try {
-						entry.getMethod().invoke(getBean(entry.getMethod().getDeclaringClass()));
-					} catch (IllegalAccessException
-							| IllegalArgumentException
-							| InvocationTargetException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
+					invokeMethod(entry);
 				}
 			});
 		}
@@ -252,14 +266,7 @@ public class DefaultBeanFactory implements BeanFactory {
 				public void afterMethod(Method method,
 						Object targetObject,
 						Object[] targetParams) {
-					try {
-						entry.getMethod().invoke(getBean(entry.getMethod().getDeclaringClass()));
-					} catch (IllegalAccessException
-							| IllegalArgumentException
-							| InvocationTargetException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
+					invokeMethod(entry);
 				}
 			});
 		}
@@ -282,19 +289,36 @@ public class DefaultBeanFactory implements BeanFactory {
 				public void afterException(Method method,
 						Object targetObject,
 						Object[] targetParams) {
-					try {
-						entry.getMethod().invoke(getBean(entry.getMethod().getDeclaringClass()));
-					} catch (IllegalAccessException
-							| IllegalArgumentException
-							| InvocationTargetException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
+					invokeMethod(entry);
 				}
 			});
 		}
-		
 		return new CglibProxyFactory(clazz, interceptors).getProxy();
+	}
+	
+	/*
+	 * 执行代理方法
+	 */
+	private Object invokeMethod(ProxyMethod proxyMethod) {
+		Object result = null;
+		Object[] methodParams = null;
+
+		if (null != proxyMethod.getMethodParams()) {
+			methodParams = new Object[proxyMethod.getMethodParams().length];
+			
+			for (int i = 0; i < proxyMethod.getMethodParams().length; i++) {
+				methodParams[i] = getBean(proxyMethod.getMethodParams()[i]);
+			}
+		}
+		try {
+			result = proxyMethod.getMethod().
+					invoke(getBean(proxyMethod.getMethod().getDeclaringClass()), methodParams);
+		} catch (IllegalAccessException | IllegalArgumentException
+				| InvocationTargetException e) {
+			log.error(e);
+			e.printStackTrace();
+		}
+		return result;
 	}
 	
 	/**
@@ -344,10 +368,23 @@ public class DefaultBeanFactory implements BeanFactory {
 	 */
 	private void initiateBean(Object bean) {
 		Class<?> clazz = bean.getClass();
-		Field[] injectFields = ReflectUtil.getAnnotationFields(clazz, Inject.class);
+		List<Field> injectFields = ReflectUtil.getAnnotationFields(clazz, Inject.class);
 		
 		for (Field field : injectFields) {
 			Class<?> type = field.getType();
+			Object result = getBean(type);
+			
+			// 如果不存在，则获取其子类型
+			if (null == result) {
+				for (Class<?> c : beanClazzs.values()) {
+					List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
+					if (c.getSuperclass() == c || interfaces.contains(type)) {
+						result = getBean(c);
+						break;
+					}
+				}
+			}
+
 			try {
 				field.set(bean, getBean(type));
 			} catch (IllegalArgumentException | IllegalAccessException e) {
