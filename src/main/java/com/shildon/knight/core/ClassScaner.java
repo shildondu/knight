@@ -46,6 +46,8 @@ public class ClassScaner {
 		specifiedPackages.put(SpecifiedPackage.SCHEDULE, new LinkedList<String>());
 		// AOP拦截
 		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR, new LinkedList<String>());
+		// 控制器
+		specifiedPackages.put(SpecifiedPackage.CONTROLLER, new LinkedList<String>());
 	}
 	
 	// 通过标志域判断是否需要初始化指定的包名

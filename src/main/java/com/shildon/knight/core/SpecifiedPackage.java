@@ -12,5 +12,7 @@ public interface SpecifiedPackage {
 	public static final String SCHEDULE = "schedule";
 	// AOP拦截器相关包名
 	public static final String INTERCEPTOR = "interceptor";
+	// 控制器包名
+	public static final String CONTROLLER = "controller";
 
 }
