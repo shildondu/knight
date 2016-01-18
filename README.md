@@ -1,7 +1,14 @@
 # Knight
-## Introduction
-knight is a simple, incomplete implement of Web framework.
+## 简介
+简单实现一个Web框架。
 
-## Design Principle
-* Convention over configuration
-* based on Annotation
+## 设计原则
+* 惯例优于配置
+* 基于Java注解
+
+## 已实现功能
+* IoC容器，包括依赖注入
+* 基于Cglib动态代理的拦截器
+* 定时任务
+* 基于Cglib动态代理的声明式事务管理
+* 基于前端控制器的Web前后端交互层
