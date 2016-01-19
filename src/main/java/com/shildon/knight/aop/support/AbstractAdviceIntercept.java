@@ -29,9 +29,15 @@ public abstract class AbstractAdviceIntercept implements MethodIntercept, Advice
 			} catch (Throwable e) {
 				afterException(targetMethod, targetObject, targetParams);
 				e.printStackTrace();
+			} finally {
+				doFinally(targetMethod, targetObject, targetParams);
 			}
 		}
 		return result;
+	}
+	
+	protected void doFinally(Method method, Object targetObject, Object[] targetParams) {
+		
 	}
 
 	// 缺省方法实现

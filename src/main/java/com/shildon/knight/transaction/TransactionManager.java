@@ -16,5 +16,8 @@ public interface TransactionManager {
 	
 	// 回滚事务
 	public void rollBack();
+	
+	// 关闭连接等
+	public void close();
 
 }

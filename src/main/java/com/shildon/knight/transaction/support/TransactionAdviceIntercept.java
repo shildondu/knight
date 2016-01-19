@@ -36,5 +36,11 @@ public class TransactionAdviceIntercept extends AbstractAdviceIntercept {
 			Object[] targetParams) {
 		transactionManager.rollBack();
 	}
+	
+	@Override
+	protected void doFinally(Method method, Object targetObject,
+			Object[] targetParams) {
+		transactionManager.close();
+	}
 
 }

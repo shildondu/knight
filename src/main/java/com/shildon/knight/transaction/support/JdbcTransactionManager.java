@@ -46,5 +46,10 @@ public class JdbcTransactionManager  implements TransactionManager {
 			e.printStackTrace();
 		}
 	}
+
+	@Override
+	public void close() {
+		ConnectionHolder.closeConnection();
+	}
 	
 }
