@@ -103,24 +103,30 @@ public class DispatcherServlet extends HttpServlet {
 		Object[] methodParameters = new Object[methodParameterClazzs.length];
 		
 		for (int i = 0; i < methodParameterClazzs.length; i++) {
-
-			try {
-				// TODO 与getBean比较
-				methodParameters[i] = BeanUtil.instantiateBean(methodParameterClazzs[i]);
-				Field[] methodParameterFields = methodParameterClazzs[i].getDeclaredFields();
-				
-				for (Field field : methodParameterFields) {
-					Object value = requestParameters.get(field.getName());
+			
+			if (methodParameterClazzs[i] == HttpServletRequest.class) {
+				methodParameters[i] = request;
+			} else if (methodParameterClazzs[i] == HttpServletResponse.class) {
+				methodParameters[i] = response;
+			} else {
+				try {
+					// TODO 与getBean比较
+					methodParameters[i] = BeanUtil.instantiateBean(methodParameterClazzs[i]);
+					Field[] methodParameterFields = methodParameterClazzs[i].getDeclaredFields();
 					
-					if (null != value) {
-						field.setAccessible(true);
-						// TODO
-						field.set(methodParameters[i], value);;
+					for (Field field : methodParameterFields) {
+						Object value = requestParameters.get(field.getName());
+						
+						if (null != value) {
+							field.setAccessible(true);
+							// TODO
+							field.set(methodParameters[i], value);;
+						}
 					}
+				} catch (InstantiationException | IllegalAccessException e) {
+					log.error(e);
+					e.printStackTrace();
 				}
-			} catch (InstantiationException | IllegalAccessException e) {
-				log.error(e);
-				e.printStackTrace();
 			}
 		}
 		Object result = null;
