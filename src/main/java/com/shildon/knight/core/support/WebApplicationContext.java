@@ -1,8 +1,6 @@
-package com.shildon.knight.core;
+package com.shildon.knight.core.support;
 
 import javax.servlet.ServletContext;
-
-import com.shildon.knight.ioc.support.DefaultBeanFactory;
 
 /**
  * Web应用上下文。
@@ -10,7 +8,7 @@ import com.shildon.knight.ioc.support.DefaultBeanFactory;
  * @date Jan 16, 2016 3:03:20 PM
  *
  */
-public class WebApplicationContext extends DefaultBeanFactory {
+public class WebApplicationContext extends DefaultApplicationContext {
 	
 	private ServletContext servletContext;
 	

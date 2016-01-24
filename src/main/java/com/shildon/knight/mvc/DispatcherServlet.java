@@ -18,9 +18,10 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
+import com.shildon.knight.core.ApplicationContext;
 import com.shildon.knight.core.ClassScaner;
 import com.shildon.knight.core.SpecifiedPackage;
-import com.shildon.knight.core.WebApplicationContext;
+import com.shildon.knight.core.support.WebApplicationContext;
 import com.shildon.knight.ioc.annotation.Bean;
 import com.shildon.knight.mvc.annotation.RequestMapping;
 import com.shildon.knight.util.BeanUtil;
@@ -34,7 +35,7 @@ import com.shildon.knight.util.ReflectUtil;
  */
 public class DispatcherServlet extends HttpServlet {
 
-	private WebApplicationContext applicationContext;
+	private ApplicationContext webApplicationContext;
 	private Map<String, Method> requestMap;
 	
 	private static final Log log = LogFactory.getLog(DispatcherServlet.class);
@@ -48,7 +49,7 @@ public class DispatcherServlet extends HttpServlet {
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
 		// 获取上下文
-		applicationContext = (WebApplicationContext) config.getServletContext().getAttribute(ContextLoader.WEB_ROOT);
+		webApplicationContext = (WebApplicationContext) config.getServletContext().getAttribute(ContextLoader.WEB_ROOT);
 		// 初始化requestMap
 		Map<String, Class<?>> clazzs = ReflectUtil.
 				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.CONTROLLER), Bean.class);
@@ -132,7 +133,7 @@ public class DispatcherServlet extends HttpServlet {
 		Object result = null;
 
 		try {
-			result = method.invoke(applicationContext.getBean(method.getDeclaringClass()), 
+			result = method.invoke(webApplicationContext.getBean(method.getDeclaringClass()), 
 					methodParameters);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {

@@ -7,7 +7,7 @@ import javax.servlet.ServletContextListener;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.shildon.knight.core.WebApplicationContext;
+import com.shildon.knight.core.support.WebApplicationContext;
 
 /**
  * 加载应用上下文。

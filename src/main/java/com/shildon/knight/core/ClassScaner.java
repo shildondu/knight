@@ -104,7 +104,8 @@ public class ClassScaner {
 		String protocol = url.getProtocol();
 		
 		if (log.isDebugEnabled()) {
-			log.debug(url.getPath());
+			log.debug("The packageName: " + packageName);
+			log.debug("The url: " + url.getPath());
 			log.debug("The protocol: " + protocol);
 		}
 		
@@ -116,9 +117,9 @@ public class ClassScaner {
 				
 				for (File f : files) {
 					// 拼接字符串
-					packageName = (null == packageName) ? f.getName() :
+					String newPackageName = (null == packageName) ? f.getName() :
 						packageName + "." + f.getName();
-					loadFileClass(packageName, f, clazzs);
+					loadFileClass(newPackageName, f, clazzs);
 				}
 			} else if ("jar".equals(protocol)) {
 				JarFile jarFile = ((JarURLConnection) url.openConnection()).
@@ -137,6 +138,11 @@ public class ClassScaner {
 	 * 加载文件夹中的类文件
 	 */
 	private static void loadFileClass(String packageName, File file, List<Class<?>> clazzs) {
+		
+		if (log.isDebugEnabled()) {
+			log.debug("in loadFileClass the packageName: " + packageName);
+			log.debug("in loadFileClass the fileName: " + file.getName());
+		}
 		// 如果是目录，递归调用
 		if (file.isDirectory()) {
 
@@ -155,10 +161,6 @@ public class ClassScaner {
 				// 去除.class后缀
 				int fileNameLength = packageName.lastIndexOf(CLASS_SUFFIX);
 				String fileName = packageName.substring(0, fileNameLength);
-				
-				if (log.isDebugEnabled()) {
-					log.debug(fileName);
-				}
 				
 				Class<?> clazz = null;
 				try {
