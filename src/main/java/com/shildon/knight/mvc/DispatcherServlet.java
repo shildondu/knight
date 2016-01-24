@@ -83,7 +83,6 @@ public class DispatcherServlet extends HttpServlet {
 		}
 	}
 	
-	@SuppressWarnings("unchecked")
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
@@ -91,7 +90,8 @@ public class DispatcherServlet extends HttpServlet {
 		// 获取请求uri
 		String requestUri = request.getRequestURI().
 				substring(request.getContextPath().length());
-		Map<String, Object> requestParameters = request.getParameterMap();
+		// TODO
+		Map<String, String[]> requestParameters = request.getParameterMap();
 		Method method = requestMap.get(requestUri);
 		
 		if (null == method) {
