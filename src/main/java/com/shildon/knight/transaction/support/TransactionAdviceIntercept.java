@@ -40,7 +40,7 @@ public class TransactionAdviceIntercept extends AbstractAdviceIntercept {
 	@Override
 	protected void doFinally(Method method, Object targetObject,
 			Object[] targetParams) {
-		transactionManager.close();
+		transactionManager.closeConnection();
 	}
 
 }

@@ -8,6 +8,9 @@ package com.shildon.knight.transaction;
  */
 public interface TransactionManager {
 	
+	// 获取数据库连接
+	public void getConnection();
+	
 	// 开启事务
 	public void begin();
 	
@@ -18,6 +21,6 @@ public interface TransactionManager {
 	public void rollBack();
 	
 	// 关闭连接等
-	public void close();
+	public void closeConnection();
 
 }

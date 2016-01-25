@@ -17,8 +17,13 @@ public class JdbcTransactionManager  implements TransactionManager {
 	private Connection connection;
 
 	@Override
-	public void begin() {
+	public void getConnection() {
 		connection = ConnectionHolder.getConnection();
+	}
+	
+	@Override
+	public void begin() {
+		getConnection();
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException e) {
@@ -48,8 +53,8 @@ public class JdbcTransactionManager  implements TransactionManager {
 	}
 
 	@Override
-	public void close() {
+	public void closeConnection() {
 		ConnectionHolder.closeConnection();
 	}
-	
+
 }
