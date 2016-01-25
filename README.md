@@ -13,11 +13,11 @@
 
 ### 基于Jdk和Cglib动态代理的AOP
 1. 约定拦截器包名为**intercepter**。
-2. 在代理类上注上`@proxy`注解，表示该类被代理。
-3. 在**intercepter**包中的类的方法上使用`@BeforeMethod`，`@AfterMethod`，`@AfterException`实现代理的位置以及增强的功能。
+2. 在被代理类上注上`@proxy`注解，表示该类被代理。
+3. 在**intercepter**包中的类的方法上使用`@BeforeMethod`，`@AfterMethod`，`@AfterException`实现代理的切点以及增强的功能。
 
 ### 定时任务
-1. 约定定时任务报名为**schedule**。
+1. 约定定时任务包名为**schedule**。
 2. 在**schedule**包中的类的方法上使用`@Scheduled`表明该方法为定时任务。
 
 ### 基于Cglib动态代理的声明式事务管理
