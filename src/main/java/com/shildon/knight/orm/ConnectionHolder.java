@@ -31,6 +31,7 @@ public class ConnectionHolder {
 				dataSource.setUsername("shildon");
 				dataSource.setPassword("duxiaodong11");
 				connection = dataSource.getConnection();
+				localConnecton.set(connection);
 			} catch (SQLException e) {
 				e.printStackTrace();
 			} finally {
