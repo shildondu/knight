@@ -1,8 +1,9 @@
 package com.shildon.knight.orm;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.SQLException;
+
+import com.alibaba.druid.pool.DruidDataSource;
 
 /**
  * 持有数据库连接，使其线程安全。
@@ -21,14 +22,19 @@ public class ConnectionHolder {
 		Connection connection = localConnecton.get();
 		
 		if (null == connection) {
-			//TODO
+			DruidDataSource dataSource = null;
 			try {
-				Class.forName("com.mysql.jdbc.Driver");
-				connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/shildon", 
-						"shildon", "duxiaodong11");
-			} catch (ClassNotFoundException | SQLException e) {
-				// TODO Auto-generated catch block
+				dataSource = new DruidDataSource();
+				// TODO
+				dataSource.setDriverClassName("com.mysql.jdbc.Driver");
+				dataSource.setUrl("jdbc:mysql://localhost:3306/shildon");
+				dataSource.setUsername("shildon");
+				dataSource.setPassword("duxiaodong11");
+				connection = dataSource.getConnection();
+			} catch (SQLException e) {
 				e.printStackTrace();
+			} finally {
+				dataSource.close();
 			}
 		}
 		return connection;
@@ -44,7 +50,6 @@ public class ConnectionHolder {
 				connection.close();
 				localConnecton.set(null);
 			} catch (SQLException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 		}

@@ -57,5 +57,11 @@
     	<artifactId>fastjson</artifactId>
     	<version>1.2.7</version>
 	</dependency>
+	
+	<dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.0.16</version>
+    </dependency>
   </dependencies>
 </project>
