@@ -3,7 +3,7 @@ package com.shildon.knight.transaction.support;
 import java.sql.Connection;
 import java.sql.SQLException;
 
-import com.shildon.knight.orm.ConnectionHolder;
+import com.shildon.knight.orm.support.ConnectionHolder;
 import com.shildon.knight.transaction.TransactionManager;
 
 /**
@@ -17,13 +17,13 @@ public class JdbcTransactionManager  implements TransactionManager {
 	private Connection connection;
 
 	@Override
-	public void getConnection() {
+	public Connection getConnection() {
 		connection = ConnectionHolder.getConnection();
+		return connection;
 	}
 	
 	@Override
 	public void begin() {
-		getConnection();
 		try {
 			connection.setAutoCommit(false);
 		} catch (SQLException e) {

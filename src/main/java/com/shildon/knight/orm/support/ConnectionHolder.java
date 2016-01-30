@@ -1,9 +1,11 @@
-package com.shildon.knight.orm;
+package com.shildon.knight.orm.support;
 
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import com.alibaba.druid.pool.DruidDataSource;
+import com.shildon.knight.util.PropertiesUtil;
 
 /**
  * 持有数据库连接，使其线程安全。
@@ -13,7 +15,27 @@ import com.alibaba.druid.pool.DruidDataSource;
  */
 public class ConnectionHolder {
 	
+	private static final String DEFAULT_PROPERTITES = "jdbc.properties";
+	private static final String DRIVER_NAME = "driverName";
+	private static final String URL_NAME = "url";
+	private static final String USERNAME_NAME = "username";
+	private static final String PASSWORD_NAME = "password";
+	
 	private static ThreadLocal<Connection> localConnecton = new ThreadLocal<Connection>();
+	private static String driverClassName;
+	private static String url;
+	private static String username;
+	private static String password;
+	
+	static {
+		InputStream is = Thread.currentThread().
+				getContextClassLoader().getResourceAsStream(DEFAULT_PROPERTITES);
+		PropertiesUtil propertiesUtil = new PropertiesUtil(is);
+		driverClassName = (String) propertiesUtil.getValue(DRIVER_NAME);
+		url = (String) propertiesUtil.getValue(URL_NAME);
+		username = (String) propertiesUtil.getValue(USERNAME_NAME);
+		password = (String) propertiesUtil.getValue(PASSWORD_NAME);
+	}
 	
 	/*
 	 * 获取数据库连接
@@ -26,10 +48,10 @@ public class ConnectionHolder {
 			try {
 				dataSource = new DruidDataSource();
 				// TODO
-				dataSource.setDriverClassName("com.mysql.jdbc.Driver");
-				dataSource.setUrl("jdbc:mysql://localhost:3306/shildon");
-				dataSource.setUsername("shildon");
-				dataSource.setPassword("duxiaodong11");
+				dataSource.setDriverClassName(driverClassName);
+				dataSource.setUrl(url);
+				dataSource.setUsername(username);
+				dataSource.setPassword(password);
 				connection = dataSource.getConnection();
 				localConnecton.set(connection);
 			} catch (SQLException e) {

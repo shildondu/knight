@@ -1,5 +1,7 @@
 package com.shildon.knight.transaction;
 
+import java.sql.Connection;
+
 /**
  * 事务管理接口。
  * @author shildon<shildondu@gmail.com>
@@ -9,7 +11,7 @@ package com.shildon.knight.transaction;
 public interface TransactionManager {
 	
 	// 获取数据库连接
-	public void getConnection();
+	public Connection getConnection();
 	
 	// 开启事务
 	public void begin();
