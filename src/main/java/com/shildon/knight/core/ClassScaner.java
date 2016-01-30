@@ -13,12 +13,13 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.shildon.knight.util.PropertiesUtil;
 
 /**
  * 加载扫描目录下的所有Class。
@@ -199,7 +200,7 @@ public class ClassScaner {
 	 * 获取扫描路径。
 	 */
 	private static String getPackageName(String fileName) {
-		Properties properties = new Properties();
+		PropertiesUtil propertiesUtil = null;
 		InputStream is = null;
 		String packageName = null;
 		
@@ -215,16 +216,11 @@ public class ClassScaner {
 						getResourceAsStream(fileName);
 
 				if (null != is) {
-					try {
-						properties.load(is);
-						packageName = ((String) properties.get(PACKAGE_NAME));
-						
-						if (log.isDebugEnabled()) {
-							log.debug(packageName);
-						}
-
-					} catch (IOException e) {
-						log.error("Can not load the path!", e);
+					propertiesUtil = new PropertiesUtil(is);
+					packageName = ((String) propertiesUtil.getValue(PACKAGE_NAME));
+					
+					if (log.isDebugEnabled()) {
+						log.debug(packageName);
 					}
 				}
 			}
