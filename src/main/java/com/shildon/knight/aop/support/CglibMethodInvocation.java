@@ -18,7 +18,7 @@ public class CglibMethodInvocation extends AbstractMethodInvocation {
 		return result;
 	}
 
-	/* =============== getter and setter ================*/
+	/* =============== getter and setter ================ */
 	public MethodProxy getMethodProxy() {
 		return methodProxy;
 	}
