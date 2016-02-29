@@ -1,6 +1,5 @@
 package com.shildon.knight.core.support;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
@@ -52,20 +51,21 @@ public class DefaultApplicationContext implements ApplicationContext {
 			List<Method> methods = ReflectUtil.getAnnotationMethods(clazz, Scheduled.class);
 			
 			for (final Method method : methods) {
-				Annotation annotation = method.getAnnotation(Scheduled.class);
+				Scheduled scheduled = method.getAnnotation(Scheduled.class);
 				int time = 1;
 				TimeUnit timeUnit = null;
 
 				try {
-					time = (int) annotation.annotationType().getMethod("time").invoke(annotation);
-					timeUnit = (TimeUnit) annotation.annotationType().getMethod("timeUnit").invoke(annotation);
+					time = scheduled.time();
+					timeUnit = scheduled.timeUnit();
 				
+					/**
 					if (null == timeUnit) {
 						// 获取默认值
 						timeUnit = (TimeUnit) annotation.annotationType().getMethod("timeUnit").getDefaultValue();
 					}
-				} catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException
-						| NoSuchMethodException | SecurityException e) {
+					**/
+				} catch (IllegalArgumentException | SecurityException e) {
 					log.error(e);
 					e.printStackTrace();
 				}

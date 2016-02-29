@@ -1,6 +1,5 @@
 package com.shildon.knight.ioc.support;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -94,17 +93,15 @@ public class DefaultBeanFactory implements BeanFactory {
 			for (Method method : methods) {
 				
 				if (method.isAnnotationPresent(BeforeMethod.class)) {
-					Annotation beforeMethod = method.getAnnotation(BeforeMethod.class);
+					BeforeMethod beforeMethod = method.getAnnotation(BeforeMethod.class);
 					String targetClass = null;
 					String targetMethod = null;
 
 					try {
-						targetClass = (String) beforeMethod.annotationType().getMethod("clazz").invoke(beforeMethod);
-						targetMethod = (String) beforeMethod.annotationType().getMethod("method").invoke(beforeMethod);
+						targetClass = beforeMethod.clazz();
+						targetMethod = beforeMethod.method();
 					} catch (IllegalArgumentException
-							| InvocationTargetException
-							| NoSuchMethodException
-							| SecurityException | IllegalAccessException e) {
+							| SecurityException e) {
 						log.error(e);
 						e.printStackTrace();
 					}
@@ -113,17 +110,15 @@ public class DefaultBeanFactory implements BeanFactory {
 						beforeAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterMethod.class)) {
-					Annotation afterMethod = method.getAnnotation(AfterMethod.class);
+					AfterMethod afterMethod = method.getAnnotation(AfterMethod.class);
 					String targetClass = null;
 					String targetMethod = null;
 
 					try {
-						targetClass = (String) afterMethod.annotationType().getMethod("clazz").invoke(afterMethod);
-						targetMethod = (String) afterMethod.annotationType().getMethod("method").invoke(afterMethod);
+						targetClass = afterMethod.clazz();
+						targetMethod = afterMethod.method();
 					} catch (IllegalArgumentException
-							| InvocationTargetException
-							| NoSuchMethodException
-							| SecurityException | IllegalAccessException e) {
+							| SecurityException e) {
 						log.error(e);
 						e.printStackTrace();
 					}
@@ -132,17 +127,15 @@ public class DefaultBeanFactory implements BeanFactory {
 						afterAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterException.class)) {
-					Annotation exceptionMethod = method.getAnnotation(AfterException.class);
+					AfterException exceptionMethod = method.getAnnotation(AfterException.class);
 					String targetClass = null;
 					String targetMethod = null;
 
 					try {
-						targetClass = (String) exceptionMethod.annotationType().getMethod("clazz").invoke(exceptionMethod);
-						targetMethod = (String) exceptionMethod.annotationType().getMethod("method").invoke(exceptionMethod);
+						targetClass = exceptionMethod.clazz();
+						targetMethod = exceptionMethod.method();
 					} catch (IllegalArgumentException
-							| InvocationTargetException
-							| NoSuchMethodException
-							| SecurityException | IllegalAccessException e) {
+							| SecurityException e) {
 						log.error(e);
 						e.printStackTrace();
 					}
