@@ -95,9 +95,8 @@ public class DispatcherServlet extends HttpServlet {
 		Method method = requestMap.get(requestUri);
 		
 		if (null == method) {
-			// TODO 404
-			response.setContentType("text/html");
-			response.getWriter().write("404 not found~");
+			// TODO 重定向到404页面
+			response.sendRedirect("");
 			return;
 		}
 		Class<?>[] methodParameterClazzs = method.getParameterTypes();

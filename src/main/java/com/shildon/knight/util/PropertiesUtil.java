@@ -11,7 +11,7 @@ import java.util.Properties;
  */
 public class PropertiesUtil {
 	
-	private Properties properties;
+	private Properties properties = new Properties();
 	
 	public PropertiesUtil(InputStream inputStream) {
 		try {
