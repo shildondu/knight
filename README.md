@@ -1,4 +1,5 @@
-# Knight
+# Knight ![build](https://travis-ci.org/shildondu/sm.svg?branch=master)
+
 ## 简介
 简单实现一个Web框架。
 
