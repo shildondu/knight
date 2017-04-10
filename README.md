@@ -13,9 +13,10 @@
 2. 将注解`@inject`注在成员变量上，表明该成员变量会根据类型进行自动注入。
 
 ### 基于Jdk和Cglib动态代理的AOP
-1. 约定拦截器包名为**intercepter**。
-2. 在被代理类上注上`@proxy`注解，表示该类被代理。
-3. 在**intercepter**包中的类的方法上使用`@BeforeMethod`，`@AfterMethod`，`@AfterException`实现代理的切点以及增强的功能。
+1. 默认使用Cglib动态代理。
+2. 约定拦截器包名为**intercepter**。
+3. 在被代理类上注上`@proxy`注解，表示该类被代理。
+4. 在**intercepter**包中的类的方法上使用`@BeforeMethod`，`@AfterMethod`，`@AfterException`实现代理的切点以及增强的功能。
 
 ### 定时任务
 1. 约定定时任务包名为**schedule**。
