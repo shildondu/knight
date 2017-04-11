@@ -24,7 +24,6 @@ import com.shildon.knight.core.SpecifiedPackage;
 import com.shildon.knight.core.support.WebApplicationContext;
 import com.shildon.knight.ioc.annotation.Bean;
 import com.shildon.knight.mvc.annotation.RequestMapping;
-import com.shildon.knight.util.BeanUtil;
 import com.shildon.knight.util.ReflectUtil;
 
 /**
@@ -52,7 +51,7 @@ public class DispatcherServlet extends HttpServlet {
 		webApplicationContext = (WebApplicationContext) config.getServletContext().getAttribute(ContextLoader.WEB_ROOT);
 		// 初始化requestMap
 		Map<String, Class<?>> clazzs = ReflectUtil.
-				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.CONTROLLER), Bean.class);
+				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.CONTROLLER.getPackageName()), Bean.class);
 		
 		for (Class<?> clazz : clazzs.values()) {
 			List<Method> handlerMethods = ReflectUtil.getAnnotationMethods(clazz, RequestMapping.class);
@@ -111,7 +110,7 @@ public class DispatcherServlet extends HttpServlet {
 			} else {
 				try {
 					// TODO 与getBean比较
-					methodParameters[i] = BeanUtil.instantiateBean(methodParameterClazzs[i]);
+					methodParameters[i] = ReflectUtil.instantiateBean(methodParameterClazzs[i]);
 					Field[] methodParameterFields = methodParameterClazzs[i].getDeclaredFields();
 					
 					for (Field field : methodParameterFields) {

@@ -8,6 +8,6 @@ package com.shildon.knight.task;
  */
 public interface Executor {
 
-	public void run(Runnable runnable);
+	void run(Runnable runnable);
 	
 }

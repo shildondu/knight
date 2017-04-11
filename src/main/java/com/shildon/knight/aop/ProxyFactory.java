@@ -8,6 +8,6 @@ package com.shildon.knight.aop;
  */
 public interface ProxyFactory {
 
-	public <T> T getProxy();
+	<T> T getProxy();
 	
 }

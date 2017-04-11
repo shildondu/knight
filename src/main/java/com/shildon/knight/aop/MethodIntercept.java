@@ -8,6 +8,6 @@ package com.shildon.knight.aop;
  */
 public interface MethodIntercept {
 
-	public Object invoke(MethodInvocation methodInvocation);
+	Object invoke(MethodInvocation methodInvocation);
 	
 }

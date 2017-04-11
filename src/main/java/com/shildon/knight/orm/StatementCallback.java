@@ -9,6 +9,6 @@ import java.sql.Statement;
  */
 public interface StatementCallback<T> {
 	
-	public T doInStatement(Statement statement);
+	T doInStatement(Statement statement);
 
 }

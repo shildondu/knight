@@ -21,7 +21,7 @@ public class JdbcOperation implements DbOperation {
 	public <T> T execute(StatementCallback<T> callback) {
 		TransactionManager transactionManager = new JdbcTransactionManager();
 		Connection connection = transactionManager.getConnection();
-		Statement statement = null;
+		Statement statement;
 		T t = null;
 
 		try {

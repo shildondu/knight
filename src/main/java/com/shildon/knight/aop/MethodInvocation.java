@@ -10,12 +10,12 @@ import java.lang.reflect.Method;
  */
 public interface MethodInvocation {
 	
-	public Object proceed() throws Throwable;
+	Object proceed() throws Throwable;
 	
-	public Method getMethod();
+	Method getMethod();
 	
-	public Object getTargetObject();
+	Object getTargetObject();
 	
-	public Object[] getTargetParams();
+	Object[] getTargetParams();
 
 }

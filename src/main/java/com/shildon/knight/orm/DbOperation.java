@@ -11,21 +11,21 @@ import java.sql.ResultSet;
 public interface DbOperation {
 	
 	// 保存
-	public boolean save(Object t);
+	boolean save(Object t);
 	
 	// 删除
-	public boolean delete(Object t);
+	boolean delete(Object t);
 	
 	// 查询
-	public Object find(Serializable id);
+	Object find(Serializable id);
 	
 	// 更新
-	public boolean update(Object t);
+	boolean update(Object t);
 	
 	// 执行查询sql语句
-	public ResultSet executeQuery(String sql);
+	ResultSet executeQuery(String sql);
 	
 	// 执行修改sql语句
-	public boolean execute(String sql);
+	boolean execute(String sql);
 
 }

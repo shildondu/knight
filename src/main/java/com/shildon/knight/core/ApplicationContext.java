@@ -7,6 +7,6 @@ package com.shildon.knight.core;
  */
 public interface ApplicationContext {
 	
-	public <T> T getBean(Class<T> type);
+	<T> T getBean(Class<T> type);
 
 }

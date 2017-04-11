@@ -11,12 +11,12 @@ import java.lang.reflect.Method;
 public interface Advice {
 
 	// 实现方法过滤
-	public boolean filter(Method method, Object targetObject, Object[] targetParams);
+	boolean filter(Method method, Object targetObject, Object[] targetParams);
 	
-	public void beforeMethod(Method method, Object targetObject, Object[] targetParams);
+	void beforeMethod(Method method, Object targetObject, Object[] targetParams);
 	
-	public void afterMethod(Method method, Object targetObject, Object[] targetParams);
+	void afterMethod(Method method, Object targetObject, Object[] targetParams);
 
-	public void afterException(Method method, Object targetObject, Object[] targetParams);
+	void afterException(Method method, Object targetObject, Object[] targetParams);
 	
 }

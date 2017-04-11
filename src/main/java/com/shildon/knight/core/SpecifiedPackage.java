@@ -6,13 +6,19 @@ package com.shildon.knight.core;
  * @date Jan 14, 2016 4:35:40 PM
  *
  */
-public interface SpecifiedPackage {
-	
-	// 定时任务包名
-	public static final String SCHEDULE = "schedule";
-	// AOP拦截器相关包名
-	public static final String INTERCEPTOR = "interceptor";
-	// 控制器包名
-	public static final String CONTROLLER = "controller";
+public enum SpecifiedPackage {
+
+    // 定时任务，拦截器，控制器包名
+	SCHEDULE("schedule"), INTERCEPTOR("interceptor"), CONTROLLER("controller");
+
+	private String packageName;
+
+	SpecifiedPackage(String packageName) {
+		this.packageName = packageName;
+	}
+
+	public String getPackageName() {
+		return this.packageName;
+	}
 
 }

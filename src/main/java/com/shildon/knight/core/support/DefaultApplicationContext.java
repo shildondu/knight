@@ -41,7 +41,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 	 */
 	private void startScheduledTask() {
 		Map<String, Class<?>> tasks = ReflectUtil.
-				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.SCHEDULE), Bean.class);
+				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.SCHEDULE.getPackageName()), Bean.class);
 		
 		if (log.isDebugEnabled()) {
 			log.debug("tasks: " + tasks);

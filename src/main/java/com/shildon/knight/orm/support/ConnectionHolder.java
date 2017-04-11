@@ -21,7 +21,7 @@ public class ConnectionHolder {
 	private static final String USERNAME_NAME = "username";
 	private static final String PASSWORD_NAME = "password";
 	
-	private static ThreadLocal<Connection> localConnecton = new ThreadLocal<Connection>();
+	private static ThreadLocal<Connection> localConnecton = new ThreadLocal<>();
 	private static String driverClassName;
 	private static String url;
 	private static String username;

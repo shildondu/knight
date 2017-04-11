@@ -3,7 +3,6 @@ package com.shildon.knight.ioc.support;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +27,6 @@ import com.shildon.knight.ioc.annotation.Inject;
 import com.shildon.knight.transaction.annotation.Transaction;
 import com.shildon.knight.transaction.support.JdbcTransactionManager;
 import com.shildon.knight.transaction.support.TransactionAdviceIntercept;
-import com.shildon.knight.util.BeanUtil;
 import com.shildon.knight.util.ReflectUtil;
 
 /**
@@ -42,7 +40,7 @@ public class DefaultBeanFactory implements BeanFactory {
 	// 缓存bean对象，默认所有bean都是单例
 	private ConcurrentHashMap<String, Object> beanCache;
 	// 缓存bean类，初始化后只读，所以不需要考虑并发
-	private Map<String, Class<?>> beanClazzs;
+	private Map<String, Class<?>> clazzCache;
 	
 	private static final Log log = LogFactory.getLog(DefaultBeanFactory.class);
 	
@@ -51,20 +49,20 @@ public class DefaultBeanFactory implements BeanFactory {
 	}
 	
 	private void init() {
-		beanCache = new ConcurrentHashMap<String, Object>();
-		beanClazzs = ReflectUtil.getAnnotationClazzs(ClassScaner.loadClass(), Bean.class);
+		beanCache = new ConcurrentHashMap<>();
+		clazzCache = ReflectUtil.getAnnotationClazzs(ClassScaner.loadClass(), Bean.class);
 	}
 	
 	private <T> T getProxyBean(Class<?> clazz) {
 		// 需要事务处理的方法
 		final List<Method> transacationMethods = ReflectUtil.getAnnotationMethods(clazz, Transaction.class);
-		List<Class<?>> clazzs = ClassScaner.loadClassBySpecify(SpecifiedPackage.INTERCEPTOR);
+		List<Class<?>> clazzs = ClassScaner.loadClassBySpecify(SpecifiedPackage.INTERCEPTOR.getPackageName());
 		// 代理方法集合
-		List<ProxyMethod> beforeAdvices = new LinkedList<ProxyMethod>();
-		List<ProxyMethod> afterAdvices = new LinkedList<ProxyMethod>();
-		List<ProxyMethod> exceptionAdvices = new LinkedList<ProxyMethod>();
+		List<ProxyMethod> beforeAdvices = new LinkedList<>();
+		List<ProxyMethod> afterAdvices = new LinkedList<>();
+		List<ProxyMethod> exceptionAdvices = new LinkedList<>();
 		// 拦截器链
-		List<MethodIntercept> interceptors = new LinkedList<MethodIntercept>();
+		List<MethodIntercept> interceptors = new LinkedList<>();
 		
 		if (log.isDebugEnabled()) {
 			log.debug("proxy name: " + clazz.getName());
@@ -77,12 +75,8 @@ public class DefaultBeanFactory implements BeanFactory {
 				
 				@Override
 				public boolean filter(Method method, Object targetObject, Object[] targetParams) {
-					if (transacationMethods.contains(method)) {
-						return true;
-					} else {
-						return false;
-					}
-				};
+					return transacationMethods.contains(method);
+				}
 			});
 		}
 		
@@ -223,7 +217,7 @@ public class DefaultBeanFactory implements BeanFactory {
 		}
 		return new CglibProxyFactory(clazz, interceptors).getProxy();
 	}
-	
+
 	/*
 	 * 执行代理方法
 	 */
@@ -260,7 +254,7 @@ public class DefaultBeanFactory implements BeanFactory {
 		T t = (T) beanCache.get(type.getName());
 		
 		if (null == t) {
-			Class<T> clazz = (Class<T>) beanClazzs.get(type.getName());
+			Class<T> clazz = (Class<T>) clazzCache.get(type.getName());
 			
 			if (null != clazz) {
 
@@ -269,7 +263,7 @@ public class DefaultBeanFactory implements BeanFactory {
 					if (clazz.isAnnotationPresent(Proxy.class)) {
 						t = getProxyBean(clazz);
 					} else {
-						t = (T) BeanUtil.instantiateBean(clazz);
+						t = (T) ReflectUtil.instantiateBean(clazz);
 					}
 					// 先放进缓存再初始化，避免循环引用导致的死循环
 					beanCache.put(clazz.getName(), t);
@@ -302,7 +296,8 @@ public class DefaultBeanFactory implements BeanFactory {
 			Class<?> type = field.getType();
 			Object result = getBean(type);
 			
-			// 如果不存在，则获取其子类型
+			// TODO 如果不存在，则获取其子类型
+			/*
 			if (null == result) {
 				for (Class<?> c : beanClazzs.values()) {
 					List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
@@ -312,9 +307,10 @@ public class DefaultBeanFactory implements BeanFactory {
 					}
 				}
 			}
+			*/
 
 			try {
-				field.set(bean, getBean(type));
+				field.set(bean, result);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				log.error(e);
 				e.printStackTrace();

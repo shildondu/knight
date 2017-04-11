@@ -11,18 +11,18 @@ import java.sql.Connection;
 public interface TransactionManager {
 	
 	// 获取数据库连接
-	public Connection getConnection();
+	Connection getConnection();
 	
 	// 开启事务
-	public void begin();
+	void begin();
 	
 	// 提交事务
-	public void commit();
+	void commit();
 	
 	// 回滚事务
-	public void rollBack();
+	void rollBack();
 	
 	// 关闭连接等
-	public void closeConnection();
+	void closeConnection();
 
 }

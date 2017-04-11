@@ -41,14 +41,14 @@ public class ClassScaner {
 	}
 	
 	// 存储指定包名的全限定包名
-	private static Map<String, List<String>> specifiedPackages = new HashMap<String, List<String>>();
+	private static Map<String, List<String>> specifiedPackages = new HashMap<>();
 	static {
 		// 定时任务
-		specifiedPackages.put(SpecifiedPackage.SCHEDULE, new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.SCHEDULE.getPackageName(), new LinkedList<String>());
 		// AOP拦截
-		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR, new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR.getPackageName(), new LinkedList<String>());
 		// 控制器
-		specifiedPackages.put(SpecifiedPackage.CONTROLLER, new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.CONTROLLER.getPackageName(), new LinkedList<String>());
 	}
 	
 	// 通过标志域判断是否需要初始化指定的包名
@@ -56,10 +56,12 @@ public class ClassScaner {
 	
 	private static final Log log = LogFactory.getLog(ClassScaner.class);
 	
-	/*
+	/**
 	 * 加入指定包名
+	 * @param fileName 文件名
+	 * @param packageName 全限定包名
 	 */
-	private static void addSpecifiedPackage(String packageName, String fileName) {
+	private static void addSpecifiedPackage(String fileName, String packageName) {
 		if (specifiedPackages.containsKey(fileName)) {
 			specifiedPackages.get(fileName).add(packageName);
 			
@@ -70,7 +72,7 @@ public class ClassScaner {
 	}
 	
 	public static List<Class<?>> loadClassBySpecify(String specifiedName) {
-		List<Class<?>> clazzs = new LinkedList<Class<?>>();
+		List<Class<?>> clazzs = new LinkedList<>();
 		if (specifiedPackages.containsKey(specifiedName)) {
 			List<String> packageNames = specifiedPackages.get(specifiedName);
 			
@@ -95,7 +97,7 @@ public class ClassScaner {
 	 */
 	public static List<Class<?>> loadClass() {
 		flag = true;
-		List<Class<?>> clazzs = new LinkedList<Class<?>>();
+		List<Class<?>> clazzs = new LinkedList<>();
 		String packageName = getPackageName(DEFAULT_PROPERTIES);
 		String packagePath = (null == packageName) ?
 				"./" : packageName.replace(".", "/");
@@ -113,7 +115,7 @@ public class ClassScaner {
 		try {
 			if ("file".equals(protocol)) {
 				File file = new File(url.toURI());
-				addSpecifiedPackage(packageName, file.getName());
+				addSpecifiedPackage(file.getName(), packageName);
 				File[] files = file.listFiles();
 				
 				for (File f : files) {
@@ -148,7 +150,7 @@ public class ClassScaner {
 		if (file.isDirectory()) {
 
 			if (flag) {
-				addSpecifiedPackage(packageName, file.getName());
+				addSpecifiedPackage(file.getName(), packageName);
 			}
 			File[] files = file.listFiles();
 			
@@ -162,15 +164,7 @@ public class ClassScaner {
 				// 去除.class后缀
 				int fileNameLength = packageName.lastIndexOf(CLASS_SUFFIX);
 				String fileName = packageName.substring(0, fileNameLength);
-				
-				Class<?> clazz = null;
-				try {
-					clazz = Class.forName(fileName);
-					clazzs.add(clazz);
-				} catch (ClassNotFoundException e) {
-					log.error(e);
-					e.printStackTrace();
-				}
+				add2Clazzs(fileName, clazzs);
 			}
 		}
 	}
@@ -184,15 +178,18 @@ public class ClassScaner {
 			JarEntry jarEntry = jarEntires.nextElement();
 			String jarName = jarEntry.getName().replace("/", ".");
 			if (jarName.endsWith(CLASS_SUFFIX)) {
-				Class<?> clazz = null;
-				try {
-					clazz = Class.forName(jarName);
-					clazzs.add(clazz);
-				} catch (ClassNotFoundException e) {
-					log.error(e);
-					e.printStackTrace();
-				}
+				add2Clazzs(jarName, clazzs);
 			}
+		}
+	}
+
+	private static void add2Clazzs(String name, List<Class<?>> clazzs) {
+		try {
+			Class<?> clazz = Class.forName(name);
+			clazzs.add(clazz);
+		} catch (ClassNotFoundException e) {
+		    log.error(e);
+		    e.printStackTrace();
 		}
 	}
 	

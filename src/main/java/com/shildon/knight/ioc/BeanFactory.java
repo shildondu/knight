@@ -8,6 +8,6 @@ package com.shildon.knight.ioc;
  */
 public interface BeanFactory {
 	
-	public <T> T getBean(Class<T> type);
+	<T> T getBean(Class<T> type);
 	
 }
