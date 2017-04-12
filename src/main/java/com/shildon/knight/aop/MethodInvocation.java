@@ -1,5 +1,7 @@
 package com.shildon.knight.aop;
 
+import com.shildon.knight.aop.support.ProxyMethod;
+
 import java.lang.reflect.Method;
 
 /**
@@ -13,7 +15,7 @@ public interface MethodInvocation {
 	Object proceed() throws Throwable;
 	
 	Method getMethod();
-	
+
 	Object getTargetObject();
 	
 	Object[] getTargetParams();

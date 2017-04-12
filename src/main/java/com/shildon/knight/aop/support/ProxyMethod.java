@@ -11,28 +11,28 @@ import java.lang.reflect.Method;
 public class ProxyMethod {
 	
 	// 被代理方法的名字
-	private String methodName;
+	private String targetMethodName;
 	// 代理方法
 	private Method method;
 	// 代理方法的方法参数
 	private Class<?>[] methodParams;
 	
-	public ProxyMethod(String methodName, Method method) {
-		this.methodName = methodName;
+	public ProxyMethod(String targetMethodName, Method method) {
+		this.targetMethodName = targetMethodName;
 		this.method = method;
 	}
-	
-	public ProxyMethod(String methodNmae, Method method, Class<?>[] methodParams) {
-		this.methodName = methodNmae;
+
+	public ProxyMethod(String targetMethodName, Method method, Class<?>[] methodParams) {
+		this.targetMethodName = targetMethodName;
 		this.method = method;
 		this.methodParams = methodParams;
 	}
 
-	public String getMethodName() {
-		return methodName;
+	public String getTargetMethodName() {
+		return targetMethodName;
 	}
-	public void setMethodName(String methodName) {
-		this.methodName = methodName;
+	public void setTargetMethodName(String targetMethodName) {
+		this.targetMethodName = targetMethodName;
 	}
 	public Method getMethod() {
 		return method;

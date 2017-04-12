@@ -5,7 +5,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.List;
 
-import com.shildon.knight.aop.MethodIntercept;
+import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.ProxyFactory;
 
 /**
@@ -19,9 +19,9 @@ public class JdkProxyFactory implements ProxyFactory {
 	private Class<?> targetClass;
 	// Jdk需要传入被代理的对象
 	private Object targetObject;
-	private List<MethodIntercept> interceptors;
+	private List<MethodInvocator> interceptors;
 	
-	public JdkProxyFactory(Class<?> targetClass, Object targetObject, List<MethodIntercept> interceptors) {
+	public JdkProxyFactory(Class<?> targetClass, Object targetObject, List<MethodInvocator> interceptors) {
 		this.targetClass = targetClass;
 		this.targetObject = targetObject;
 		this.interceptors = interceptors;
@@ -37,7 +37,7 @@ public class JdkProxyFactory implements ProxyFactory {
 			public Object invoke(Object proxy, Method method, Object[] args)
 					throws Throwable {
 				// 这里proxy并不是原来的对象
-				return new JdkMethodInvocation().setTargetClass(targetClass).setInterceptors(interceptors).
+				return new JdkMethodInvocation().setTargetClass(targetClass).addInterceptors(interceptors).
 						setTargetObject(targetObject).setTargetMethod(method).setTargetParams(args).proceed();
 			}
 		});

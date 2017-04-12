@@ -7,7 +7,7 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.MethodInterceptor;
 import net.sf.cglib.proxy.MethodProxy;
 
-import com.shildon.knight.aop.MethodIntercept;
+import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.ProxyFactory;
 
 /**
@@ -19,9 +19,9 @@ import com.shildon.knight.aop.ProxyFactory;
 public class CglibProxyFactory implements ProxyFactory {
 
 	private Class<?> targetClass;
-	private List<MethodIntercept> interceptors;
+	private List<MethodInvocator> interceptors;
 	
-	public CglibProxyFactory(Class<?> targetClass, List<MethodIntercept> interceptors) {
+	public CglibProxyFactory(Class<?> targetClass, List<MethodInvocator> interceptors) {
 		this.targetClass = targetClass;
 		this.interceptors = interceptors;
 	}
@@ -35,7 +35,7 @@ public class CglibProxyFactory implements ProxyFactory {
 			public Object intercept(Object obj, Method method, Object[] args,
 					MethodProxy proxy) throws Throwable {
 				return new CglibMethodInvocation().setMethodProxy(proxy).setTargetClass(targetClass).
-						setInterceptors(interceptors).setTargetObject(obj).setTargetParams(args).
+						addInterceptors(interceptors).setTargetObject(obj).setTargetParams(args).
 						setTargetMethod(method).proceed();
 			}
 		});

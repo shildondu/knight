@@ -6,7 +6,7 @@ package com.shildon.knight.aop;
  * @date Jan 12, 2016 9:51:30 PM
  *
  */
-public interface MethodIntercept {
+public interface MethodInvocator {
 
 	Object invoke(MethodInvocation methodInvocation);
 	

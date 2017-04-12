@@ -3,7 +3,7 @@ package com.shildon.knight.aop.support;
 import java.lang.reflect.Method;
 
 import com.shildon.knight.aop.Advice;
-import com.shildon.knight.aop.MethodIntercept;
+import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.MethodInvocation;
 
 /**
@@ -12,7 +12,15 @@ import com.shildon.knight.aop.MethodInvocation;
  * @date Jan 13, 2016 3:08:11 PM
  *
  */
-public abstract class AbstractAdviceIntercept implements MethodIntercept, Advice {
+public abstract class AbstractMethodInterceptor implements MethodInvocator, Advice {
+
+	protected ProxyMethod proxyMethod;
+
+	public AbstractMethodInterceptor(ProxyMethod proxyMethod) {
+		this.proxyMethod = proxyMethod;
+	}
+
+	public AbstractMethodInterceptor() {}
 	
 	@Override
 	public Object invoke(MethodInvocation methodInvocation) {
@@ -36,28 +44,28 @@ public abstract class AbstractAdviceIntercept implements MethodIntercept, Advice
 		return result;
 	}
 	
-	protected void doFinally(Method method, Object targetObject, Object[] targetParams) {
+	protected void doFinally(Method targetMethod, Object targetObject, Object[] targetParams) {
 		
 	}
 
 	// 缺省方法实现
 	@Override
-	public boolean filter(Method method, Object targetObject, Object[] targetParams) {
-		return true;
+	public boolean filter(Method targetMethod, Object targetObject, Object[] targetParams) {
+		return null == proxyMethod ? true : targetMethod.getName().equals(proxyMethod.getTargetMethodName());
 	}
 
 	@Override
-	public void beforeMethod(Method method, Object targetObject, Object[] targetParams) {
+	public void beforeMethod(Method targetMethod, Object targetObject, Object[] targetParams) {
 		
 	}
 
 	@Override
-	public void afterMethod(Method method, Object targetObject, Object[] targetParams) {
+	public void afterMethod(Method targetMethod, Object targetObject, Object[] targetParams) {
 		
 	}
 
 	@Override
-	public void afterException(Method method, Object targetObject, Object[] targetParams) {
+	public void afterException(Method targetMethod, Object targetObject, Object[] targetParams) {
 		
 	}
 

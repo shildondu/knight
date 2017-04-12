@@ -1,9 +1,10 @@
 package com.shildon.knight.aop.support;
 
 import java.lang.reflect.Method;
+import java.util.LinkedList;
 import java.util.List;
 
-import com.shildon.knight.aop.MethodIntercept;
+import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.MethodInvocation;
 
 /**
@@ -19,7 +20,7 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 	protected Method targetMethod;
 	protected Object[] targetParams;
 	
-	protected List<MethodIntercept> interceptors;
+	protected List<MethodInvocator> interceptors = new LinkedList<>();
 	protected int index = -1;
 	
 	protected abstract Object execute() throws Throwable;
@@ -39,10 +40,10 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 
 	@Override
 	public Method getMethod() {
-		return this.targetMethod;
+		return targetMethod;
 	}
 
-	@Override
+    @Override
 	public Object getTargetObject() {
 		return targetObject;
 	}
@@ -77,12 +78,12 @@ public abstract class AbstractMethodInvocation implements MethodInvocation {
 		return this;
 	}
 
-	public List<MethodIntercept> getInterceptors() {
+	public List<MethodInvocator> getInterceptors() {
 		return interceptors;
 	}
 
-	public AbstractMethodInvocation setInterceptors(List<MethodIntercept> interceptors) {
-		this.interceptors = interceptors;
+	public AbstractMethodInvocation addInterceptors(List<MethodInvocator> interceptors) {
+		this.interceptors.addAll(interceptors);
 		return this;
 	}
 

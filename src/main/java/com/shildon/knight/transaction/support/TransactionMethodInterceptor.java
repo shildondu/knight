@@ -2,7 +2,8 @@ package com.shildon.knight.transaction.support;
 
 import java.lang.reflect.Method;
 
-import com.shildon.knight.aop.support.AbstractAdviceIntercept;
+import com.shildon.knight.aop.support.AbstractMethodInterceptor;
+import com.shildon.knight.aop.support.ProxyMethod;
 import com.shildon.knight.transaction.TransactionManager;
 
 /**
@@ -11,11 +12,11 @@ import com.shildon.knight.transaction.TransactionManager;
  * @date Jan 15, 2016 9:46:03 PM
  *
  */
-public class TransactionAdviceIntercept extends AbstractAdviceIntercept {
+public class TransactionMethodInterceptor extends AbstractMethodInterceptor {
 	
 	private TransactionManager transactionManager;
 	
-	public TransactionAdviceIntercept(TransactionManager transactionManager) {
+	public TransactionMethodInterceptor(TransactionManager transactionManager) {
 		this.transactionManager = transactionManager;
 	}
 	

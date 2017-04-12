@@ -11,12 +11,12 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import com.shildon.knight.aop.MethodIntercept;
+import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.annotation.AfterException;
 import com.shildon.knight.aop.annotation.AfterMethod;
 import com.shildon.knight.aop.annotation.BeforeMethod;
 import com.shildon.knight.aop.annotation.Proxy;
-import com.shildon.knight.aop.support.AbstractAdviceIntercept;
+import com.shildon.knight.aop.support.AbstractMethodInterceptor;
 import com.shildon.knight.aop.support.CglibProxyFactory;
 import com.shildon.knight.aop.support.ProxyMethod;
 import com.shildon.knight.core.ClassScaner;
@@ -26,7 +26,7 @@ import com.shildon.knight.ioc.annotation.Bean;
 import com.shildon.knight.ioc.annotation.Inject;
 import com.shildon.knight.transaction.annotation.Transaction;
 import com.shildon.knight.transaction.support.JdbcTransactionManager;
-import com.shildon.knight.transaction.support.TransactionAdviceIntercept;
+import com.shildon.knight.transaction.support.TransactionMethodInterceptor;
 import com.shildon.knight.util.ReflectUtil;
 
 /**
@@ -62,7 +62,7 @@ public class DefaultBeanFactory implements BeanFactory {
 		List<ProxyMethod> afterAdvices = new LinkedList<>();
 		List<ProxyMethod> exceptionAdvices = new LinkedList<>();
 		// 拦截器链
-		List<MethodIntercept> interceptors = new LinkedList<>();
+		List<MethodInvocator> interceptors = new LinkedList<>();
 		
 		if (log.isDebugEnabled()) {
 			log.debug("proxy name: " + clazz.getName());
@@ -71,7 +71,7 @@ public class DefaultBeanFactory implements BeanFactory {
 		
 		// 配置事务处理拦截
 		if (null != transacationMethods && 0 != transacationMethods.size()) {
-			interceptors.add(new TransactionAdviceIntercept(new JdbcTransactionManager()) {
+			interceptors.add(new TransactionMethodInterceptor(new JdbcTransactionManager()) {
 				
 				@Override
 				public boolean filter(Method method, Object targetObject, Object[] targetParams) {
@@ -148,19 +148,8 @@ public class DefaultBeanFactory implements BeanFactory {
 		}
 		
 		for (final ProxyMethod entry : beforeAdvices) {
-			interceptors.add(new AbstractAdviceIntercept() {
+			interceptors.add(new AbstractMethodInterceptor(entry) {
 
-				@Override
-				public boolean filter(Method method,
-						Object targetObject,
-						Object[] targetParams) {
-					if (method.getName().equals(entry.getMethodName())) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				
 				@Override
 				public void beforeMethod(Method method,
 						Object targetObject,
@@ -171,19 +160,8 @@ public class DefaultBeanFactory implements BeanFactory {
 		}
 
 		for (final ProxyMethod entry : afterAdvices) {
-			interceptors.add(new AbstractAdviceIntercept() {
+			interceptors.add(new AbstractMethodInterceptor(entry) {
 
-				@Override
-				public boolean filter(Method method,
-						Object targetObject,
-						Object[] targetParams) {
-					if (method.getName().equals(entry.getMethodName())) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				
 				@Override
 				public void afterMethod(Method method,
 						Object targetObject,
@@ -194,19 +172,8 @@ public class DefaultBeanFactory implements BeanFactory {
 		}
 
 		for (final ProxyMethod entry : exceptionAdvices) {
-			interceptors.add(new AbstractAdviceIntercept() {
+			interceptors.add(new AbstractMethodInterceptor(entry) {
 
-				@Override
-				public boolean filter(Method method,
-						Object targetObject,
-						Object[] targetParams) {
-					if (method.getName().equals(entry.getMethodName())) {
-						return true;
-					} else {
-						return false;
-					}
-				}
-				
 				@Override
 				public void afterException(Method method,
 						Object targetObject,
