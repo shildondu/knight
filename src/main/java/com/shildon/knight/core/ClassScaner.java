@@ -7,6 +7,7 @@ import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -202,10 +203,11 @@ public class ClassScaner {
 		String packageName = null;
 		
 		// 构造绝对路径
-		String path = PROJECT_ROOT + fileName;
+		String pathStr = PROJECT_ROOT + fileName;
 
 		// 若配置文件不存在，则默认从项目根目录开始扫描
-		if (!Files.exists(Paths.get(path))) {
+        File file = new File(pathStr);
+		if (!file.exists()) {
 
 		} else {
 			if (null != fileName && fileName.endsWith(PROPERTIES_SUFFIX)) {

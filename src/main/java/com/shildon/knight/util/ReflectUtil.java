@@ -1,7 +1,9 @@
 package com.shildon.knight.util;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -17,15 +19,20 @@ import java.util.Map;
 public class ReflectUtil {
 
 	/**
-	 * 实例化指定类
+	 * 使用公有参构造方法实例化指定类
 	 * @param clazz 类
 	 * @return bean
 	 * @throws InstantiationException
 	 * @throws IllegalAccessException
 	 */
-	public static Object instantiateBean(Class<?> clazz) throws InstantiationException, IllegalAccessException {
-		// TODO 可优化，用策略模式指定实例化策略
-		return clazz.newInstance();
+	public static Object instantiateBean(Class<?> clazz) throws NoSuchMethodException, InvocationTargetException, IllegalAccessException, InstantiationException {
+	    Constructor<?>[] constructors = clazz.getConstructors();
+        for (Constructor<?> constructor : constructors) {
+	    	if (0 == constructor.getParameterCount()) {
+	    	    return constructor.newInstance();
+			}
+		}
+		return null;
 	}
 
 	/**

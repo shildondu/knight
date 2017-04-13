@@ -3,9 +3,7 @@ package com.shildon.knight.ioc.support;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
@@ -232,7 +230,10 @@ public class DefaultBeanFactory implements BeanFactory {
 					} else {
 						t = (T) ReflectUtil.instantiateBean(clazz);
 					}
-					// 先放进缓存再初始化，避免循环引用导致的死循环
+					if (null == t) {    // 表明type为接口或抽象类
+					    return null;
+                    }
+					// 先放进缓存再初始化，避免互相引用导致的死循环
 					beanCache.put(clazz.getName(), t);
 					// 初始化bean，依赖注入的地方
 					initiateBean(t);
@@ -243,8 +244,12 @@ public class DefaultBeanFactory implements BeanFactory {
 					
 				} catch (InstantiationException | IllegalAccessException e) {
 					log.error("Instantiate " + type.getName() + " fail!", e);
-				}
-			} else {
+				} catch (NoSuchMethodException e) {
+                    e.printStackTrace();
+                } catch (InvocationTargetException e) {
+                    e.printStackTrace();
+                }
+            } else {
 				// TODO
 			}
 		}
@@ -258,26 +263,24 @@ public class DefaultBeanFactory implements BeanFactory {
 	private void initiateBean(Object bean) {
 		Class<?> clazz = bean.getClass();
 		List<Field> injectFields = ReflectUtil.getAnnotationFields(clazz, Inject.class);
-		
+
 		for (Field field : injectFields) {
 			Class<?> type = field.getType();
-			Object result = getBean(type);
+			Object value = getBean(type);
 			
 			// TODO 如果不存在，则获取其子类型
-			/*
-			if (null == result) {
-				for (Class<?> c : beanClazzs.values()) {
+			if (null == value) {
+				for (Class<?> c : clazzCache.values()) {
 					List<Class<?>> interfaces = Arrays.asList(c.getInterfaces());
-					if (c.getSuperclass() == c || interfaces.contains(type)) {
-						result = getBean(c);
+					if (c.getSuperclass() == clazz || interfaces.contains(type)) {
+						value = getBean(c);
 						break;
 					}
 				}
 			}
-			*/
 
 			try {
-				field.set(bean, result);
+				field.set(bean, value);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
 				log.error(e);
 				e.printStackTrace();
