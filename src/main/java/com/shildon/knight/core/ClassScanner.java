@@ -6,9 +6,6 @@ import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -28,7 +25,7 @@ import com.shildon.knight.util.PropertiesUtil;
  * @date Jan 2, 2016 4:02:25 PM
  *
  */
-public class ClassScaner {
+public class ClassScanner {
 	
 	private static final String DEFAULT_PROPERTIES = "scan.properties";
 	private static final String PACKAGE_NAME = "packageName";
@@ -37,7 +34,7 @@ public class ClassScaner {
 	
 	private static final String PROJECT_ROOT;
 	static {
-		// 获取项目根目录
+		// 获取项目根目录classpath
 		PROJECT_ROOT = Thread.currentThread().getContextClassLoader().getResource("./").getPath();
 	}
 	
@@ -55,7 +52,7 @@ public class ClassScaner {
 	// 通过标志域判断是否需要初始化指定的包名
 	private static boolean flag = false;
 	
-	private static final Log log = LogFactory.getLog(ClassScaner.class);
+	private static final Log log = LogFactory.getLog(ClassScanner.class);
 	
 	/**
 	 * 加入指定包名

@@ -10,7 +10,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import com.shildon.knight.core.ApplicationContext;
-import com.shildon.knight.core.ClassScaner;
+import com.shildon.knight.core.ClassScanner;
 import com.shildon.knight.core.SpecifiedPackage;
 import com.shildon.knight.ioc.BeanFactory;
 import com.shildon.knight.ioc.annotation.Bean;
@@ -41,7 +41,7 @@ public class DefaultApplicationContext implements ApplicationContext {
 	 */
 	private void startScheduledTask() {
 		Map<String, Class<?>> tasks = ReflectUtil.
-				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.SCHEDULE.getPackageName()), Bean.class);
+				getAnnotationClazzs(ClassScanner.loadClassBySpecify(SpecifiedPackage.SCHEDULE.getPackageName()), Bean.class);
 		
 		if (log.isDebugEnabled()) {
 			log.debug("tasks: " + tasks);

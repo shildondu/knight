@@ -5,8 +5,10 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
@@ -19,7 +21,7 @@ import org.apache.commons.logging.LogFactory;
 
 import com.alibaba.fastjson.JSON;
 import com.shildon.knight.core.ApplicationContext;
-import com.shildon.knight.core.ClassScaner;
+import com.shildon.knight.core.ClassScanner;
 import com.shildon.knight.core.SpecifiedPackage;
 import com.shildon.knight.core.support.WebApplicationContext;
 import com.shildon.knight.ioc.annotation.Bean;
@@ -39,26 +41,27 @@ public class DispatcherServlet extends HttpServlet {
 	
 	private static final Log log = LogFactory.getLog(DispatcherServlet.class);
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
-	
+
 	@Override
 	public void init(ServletConfig config) throws ServletException {
 		super.init(config);
-		// 获取上下文
-		webApplicationContext = (WebApplicationContext) config.getServletContext().getAttribute(ContextLoader.WEB_ROOT);
+		// 获取Web应用上下文
+		webApplicationContext = (WebApplicationContext) config.getServletContext()
+				.getAttribute(ContextLoader.WEB_ROOT);
+		// 只写一次，所以不考虑并发问题
+		requestMap = new HashMap<>();
 		// 初始化requestMap
 		Map<String, Class<?>> clazzs = ReflectUtil.
-				getAnnotationClazzs(ClassScaner.loadClassBySpecify(SpecifiedPackage.CONTROLLER.getPackageName()), Bean.class);
+				getAnnotationClazzs(ClassScanner.loadClassBySpecify(SpecifiedPackage.CONTROLLER.getPackageName()),
+						Bean.class);
 		
 		for (Class<?> clazz : clazzs.values()) {
 			List<Method> handlerMethods = ReflectUtil.getAnnotationMethods(clazz, RequestMapping.class);
 			
 			for (Method method : handlerMethods) {
 				Annotation annotation = method.getAnnotation(RequestMapping.class);
-				String uri = null;
+				String uri;
 
 				try {
 					uri = (String) annotation.annotationType().getMethod("value").invoke(annotation);
@@ -85,7 +88,7 @@ public class DispatcherServlet extends HttpServlet {
 	@Override
 	protected void service(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
-		super.service(request, response);
+//		super.service(request, response);
 		// 获取请求uri
 		String requestUri = request.getRequestURI().
 				substring(request.getContextPath().length());
@@ -94,53 +97,56 @@ public class DispatcherServlet extends HttpServlet {
 		Method method = requestMap.get(requestUri);
 		
 		if (null == method) {
-			// TODO 重定向到404页面
-			response.sendRedirect("");
-			return;
-		}
-		Class<?>[] methodParameterClazzs = method.getParameterTypes();
-		Object[] methodParameters = new Object[methodParameterClazzs.length];
-		
-		for (int i = 0; i < methodParameterClazzs.length; i++) {
-			
-			if (methodParameterClazzs[i] == HttpServletRequest.class) {
-				methodParameters[i] = request;
-			} else if (methodParameterClazzs[i] == HttpServletResponse.class) {
-				methodParameters[i] = response;
-			} else {
-				try {
-					// TODO 与getBean比较
-					methodParameters[i] = ReflectUtil.instantiateBean(methodParameterClazzs[i]);
-					Field[] methodParameterFields = methodParameterClazzs[i].getDeclaredFields();
-					
-					for (Field field : methodParameterFields) {
-						Object value = requestParameters.get(field.getName());
-						
-						if (null != value) {
-							field.setAccessible(true);
-							// TODO
-							field.set(methodParameters[i], value);;
+			response.getWriter().write("<h1>404 Not Found!</h1>");
+		} else {
+			Class<?>[] methodParameterClazzs = method.getParameterTypes();
+			Object[] methodParameters = new Object[methodParameterClazzs.length];
+
+			for (int i = 0; i < methodParameterClazzs.length; i++) {
+
+				if (methodParameterClazzs[i] == HttpServletRequest.class) {
+					methodParameters[i] = request;
+				} else if (methodParameterClazzs[i] == HttpServletResponse.class) {
+					methodParameters[i] = response;
+				} else {
+					try {
+						// TODO 与getBean比较
+						methodParameters[i] = ReflectUtil.instantiateBean(methodParameterClazzs[i]);
+						Field[] methodParameterFields = methodParameterClazzs[i].getDeclaredFields();
+
+						for (Field field : methodParameterFields) {
+							Object value = requestParameters.get(field.getName());
+
+							if (null != value) {
+								field.setAccessible(true);
+								// TODO
+								field.set(methodParameters[i], value);;
+							}
 						}
+					} catch (InstantiationException | IllegalAccessException e) {
+						log.error(e);
+						e.printStackTrace();
+					} catch (NoSuchMethodException e) {
+						e.printStackTrace();
+					} catch (InvocationTargetException e) {
+						e.printStackTrace();
 					}
-				} catch (InstantiationException | IllegalAccessException e) {
-					log.error(e);
-					e.printStackTrace();
 				}
 			}
-		}
-		Object result = null;
+			Object result = null;
 
-		try {
-			result = method.invoke(webApplicationContext.getBean(method.getDeclaringClass()), 
-					methodParameters);
-		} catch (IllegalAccessException | IllegalArgumentException
-				| InvocationTargetException e) {
-			log.error(e);
-			e.printStackTrace();
+			try {
+				result = method.invoke(webApplicationContext.getBean(method.getDeclaringClass()),
+						methodParameters);
+			} catch (IllegalAccessException | IllegalArgumentException
+					| InvocationTargetException e) {
+				log.error(e);
+				e.printStackTrace();
+			}
+			response.setContentType("application/json");
+			String jsonResult = JSON.toJSONString(result);
+			response.getWriter().write(jsonResult);
 		}
-		response.setContentType("application/json");
-		String jsonResult = JSON.toJSONString(result);
-		response.getWriter().write(jsonResult);
 	}
 
 }

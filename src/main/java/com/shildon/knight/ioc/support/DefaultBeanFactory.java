@@ -17,7 +17,7 @@ import com.shildon.knight.aop.annotation.Proxy;
 import com.shildon.knight.aop.support.AbstractMethodInterceptor;
 import com.shildon.knight.aop.support.CglibProxyFactory;
 import com.shildon.knight.aop.support.ProxyMethod;
-import com.shildon.knight.core.ClassScaner;
+import com.shildon.knight.core.ClassScanner;
 import com.shildon.knight.core.SpecifiedPackage;
 import com.shildon.knight.ioc.BeanFactory;
 import com.shildon.knight.ioc.annotation.Bean;
@@ -48,13 +48,13 @@ public class DefaultBeanFactory implements BeanFactory {
 	
 	private void init() {
 		beanCache = new ConcurrentHashMap<>();
-		clazzCache = ReflectUtil.getAnnotationClazzs(ClassScaner.loadClass(), Bean.class);
+		clazzCache = ReflectUtil.getAnnotationClazzs(ClassScanner.loadClass(), Bean.class);
 	}
 	
 	private <T> T getProxyBean(Class<?> clazz) {
 		// 需要事务处理的方法
 		final List<Method> transacationMethods = ReflectUtil.getAnnotationMethods(clazz, Transaction.class);
-		List<Class<?>> clazzs = ClassScaner.loadClassBySpecify(SpecifiedPackage.INTERCEPTOR.getPackageName());
+		List<Class<?>> clazzs = ClassScanner.loadClassBySpecify(SpecifiedPackage.INTERCEPTOR.getPackageName());
 		// 代理方法集合
 		List<ProxyMethod> beforeAdvices = new LinkedList<>();
 		List<ProxyMethod> afterAdvices = new LinkedList<>();
