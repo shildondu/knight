@@ -1,14 +1,5 @@
 package com.shildon.knight.ioc.support;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.shildon.knight.aop.MethodInvocator;
 import com.shildon.knight.aop.annotation.AfterException;
 import com.shildon.knight.aop.annotation.AfterMethod;
@@ -26,6 +17,17 @@ import com.shildon.knight.transaction.annotation.Transaction;
 import com.shildon.knight.transaction.support.JdbcTransactionManager;
 import com.shildon.knight.transaction.support.TransactionMethodInterceptor;
 import com.shildon.knight.util.ReflectUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 默认bean工厂，生产bean。
@@ -40,7 +42,7 @@ public class DefaultBeanFactory implements BeanFactory {
 	// 缓存bean类，初始化后只读，所以不需要考虑并发
 	private Map<String, Class<?>> clazzCache;
 	
-	private static final Log log = LogFactory.getLog(DefaultBeanFactory.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBeanFactory.class);
 	
 	public DefaultBeanFactory() {
 		init();
@@ -61,12 +63,10 @@ public class DefaultBeanFactory implements BeanFactory {
 		List<ProxyMethod> exceptionAdvices = new LinkedList<>();
 		// 拦截器链
 		List<MethodInvocator> interceptors = new LinkedList<>();
-		
-		if (log.isDebugEnabled()) {
-			log.debug("proxy name: " + clazz.getName());
-			log.debug("interceptors: " + clazzs);
-		}
-		
+
+        LOGGER.debug("proxy name: {}", clazz.getName());
+        LOGGER.debug("interceptors: {}", clazzs);
+
 		// 配置事务处理拦截
 		if (null != transacationMethods && 0 != transacationMethods.size()) {
 			interceptors.add(new TransactionMethodInterceptor(new JdbcTransactionManager()) {
@@ -86,65 +86,36 @@ public class DefaultBeanFactory implements BeanFactory {
 				
 				if (method.isAnnotationPresent(BeforeMethod.class)) {
 					BeforeMethod beforeMethod = method.getAnnotation(BeforeMethod.class);
-					String targetClass = null;
-					String targetMethod = null;
+                    String targetClass = beforeMethod.clazz();
+                    String targetMethod = beforeMethod.method();
 
-					try {
-						targetClass = beforeMethod.clazz();
-						targetMethod = beforeMethod.method();
-					} catch (IllegalArgumentException
-							| SecurityException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
-					
 					if (clazz.getName().equals(targetClass)) {
 						beforeAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterMethod.class)) {
 					AfterMethod afterMethod = method.getAnnotation(AfterMethod.class);
-					String targetClass = null;
-					String targetMethod = null;
+                    String targetClass = afterMethod.clazz();
+                    String targetMethod = afterMethod.method();
 
-					try {
-						targetClass = afterMethod.clazz();
-						targetMethod = afterMethod.method();
-					} catch (IllegalArgumentException
-							| SecurityException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
-					
 					if (clazz.getName().equals(targetClass)) {
 						afterAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				} else if (method.isAnnotationPresent(AfterException.class)) {
 					AfterException exceptionMethod = method.getAnnotation(AfterException.class);
-					String targetClass = null;
-					String targetMethod = null;
+                    String targetClass = exceptionMethod.clazz();
+                    String targetMethod = exceptionMethod.method();
 
-					try {
-						targetClass = exceptionMethod.clazz();
-						targetMethod = exceptionMethod.method();
-					} catch (IllegalArgumentException
-							| SecurityException e) {
-						log.error(e);
-						e.printStackTrace();
-					}
-					
 					if (clazz.getName().equals(targetClass)) {
 						exceptionAdvices.add(new ProxyMethod(targetMethod, method, method.getParameterTypes()));
 					}
 				}
 			}
 		}
-		
-		if (log.isDebugEnabled()) {
-			log.debug("beforeAdvices :" + beforeAdvices);
-			log.debug("afterAdvices :" + afterAdvices);
-			log.debug("exceptionAdvices :" + exceptionAdvices);
-		}
-		
+
+        LOGGER.debug("beforeAdvices: {}", beforeAdvices);
+        LOGGER.debug("afterAdvices: {}", afterAdvices);
+        LOGGER.debug("exceptionAdvices: {}", exceptionAdvices);
+
 		for (final ProxyMethod entry : beforeAdvices) {
 			interceptors.add(new AbstractMethodInterceptor(entry) {
 
@@ -202,8 +173,7 @@ public class DefaultBeanFactory implements BeanFactory {
 					invoke(getBean(proxyMethod.getMethod().getDeclaringClass()), methodParams);
 		} catch (IllegalAccessException | IllegalArgumentException
 				| InvocationTargetException e) {
-			log.error(e);
-			e.printStackTrace();
+			LOGGER.error("invoke proxy method: {} error!", proxyMethod.getMethod().getName());
 		}
 		return result;
 	}
@@ -238,17 +208,12 @@ public class DefaultBeanFactory implements BeanFactory {
 					// 初始化bean，依赖注入的地方
 					initiateBean(t);
 
-					if (log.isDebugEnabled()) {
-						log.debug("instantiate " + type.getName() + " successfully!");
-					}
-					
-				} catch (InstantiationException | IllegalAccessException e) {
-					log.error("Instantiate " + type.getName() + " fail!", e);
-				} catch (NoSuchMethodException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
+                    LOGGER.debug("instantiate {} successfully!", type.getName());
+
+				} catch (InstantiationException | IllegalAccessException
+                        | NoSuchMethodException | InvocationTargetException e) {
+				    LOGGER.error("Instantiate {} fail!", type.getName());
+				}
             } else {
 				// TODO
 			}
@@ -282,8 +247,7 @@ public class DefaultBeanFactory implements BeanFactory {
 			try {
 				field.set(bean, value);
 			} catch (IllegalArgumentException | IllegalAccessException e) {
-				log.error(e);
-				e.printStackTrace();
+			    LOGGER.error("set field: {} fail!", field.getName());
 			}
 		}
 	}

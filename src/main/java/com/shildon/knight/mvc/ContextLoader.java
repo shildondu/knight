@@ -1,13 +1,12 @@
 package com.shildon.knight.mvc;
 
+import com.shildon.knight.core.support.WebApplicationContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.shildon.knight.core.support.WebApplicationContext;
 
 /**
  * 加载应用上下文。
@@ -19,7 +18,7 @@ public class ContextLoader implements ServletContextListener {
 	
 	public static final String WEB_ROOT = "WEB_APPLICATION_CONTEXT";
 	
-	private static final Log log = LogFactory.getLog(ContextLoader.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ContextLoader.class);
 
 	@Override
 	public void contextDestroyed(ServletContextEvent arg0) {
@@ -37,10 +36,8 @@ public class ContextLoader implements ServletContextListener {
 		WebApplicationContext applicationContext = 
 				new WebApplicationContext(servletContext);
 		servletContext.setAttribute(WEB_ROOT, applicationContext);
-		
-		if (log.isDebugEnabled()) {
-			log.debug("load web application context successfully!");
-		}
+
+		LOGGER.debug("load web application context successfully!");
 	}
 
 }

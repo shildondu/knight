@@ -1,23 +1,18 @@
 package com.shildon.knight.core;
 
+import com.shildon.knight.util.PropertiesUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.JarURLConnection;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
-import com.shildon.knight.util.PropertiesUtil;
 
 /**
  * 加载扫描目录下的所有Class。
@@ -42,17 +37,17 @@ public class ClassScanner {
 	private static Map<String, List<String>> specifiedPackages = new HashMap<>();
 	static {
 		// 定时任务
-		specifiedPackages.put(SpecifiedPackage.SCHEDULE.getPackageName(), new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.SCHEDULE.getPackageName(), new LinkedList<>());
 		// AOP拦截
-		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR.getPackageName(), new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.INTERCEPTOR.getPackageName(), new LinkedList<>());
 		// 控制器
-		specifiedPackages.put(SpecifiedPackage.CONTROLLER.getPackageName(), new LinkedList<String>());
+		specifiedPackages.put(SpecifiedPackage.CONTROLLER.getPackageName(), new LinkedList<>());
 	}
 	
 	// 通过标志域判断是否需要初始化指定的包名
 	private static boolean flag = false;
 	
-	private static final Log log = LogFactory.getLog(ClassScanner.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(ClassScanner.class);
 	
 	/**
 	 * 加入指定包名
@@ -62,10 +57,8 @@ public class ClassScanner {
 	private static void addSpecifiedPackage(String fileName, String packageName) {
 		if (specifiedPackages.containsKey(fileName)) {
 			specifiedPackages.get(fileName).add(packageName);
-			
-			if (log.isDebugEnabled()) {
-				log.debug(fileName + " -> " + packageName);
-			}
+
+			LOGGER.debug("{} -> {}", fileName, packageName);
 		}
 	}
 	
@@ -78,10 +71,8 @@ public class ClassScanner {
 				String packagePath = packageName.replace(".", "/");
 				File file = new File(PROJECT_ROOT + packagePath);
 
-				if (log.isDebugEnabled()) {
-					log.debug("packageName: " + packageName);
-					log.debug("packagePath: " + packagePath);
-				}
+                LOGGER.debug("packageName: {}", packageName);
+                LOGGER.debug("packagePath: {}", packagePath);
 
 				loadFileClass(packageName, file, clazzs);
 			}
@@ -103,13 +94,11 @@ public class ClassScanner {
 				getResource(packagePath);
 		// 获取该url的协议，主要处理file和jar
 		String protocol = url.getProtocol();
-		
-		if (log.isDebugEnabled()) {
-			log.debug("The packageName: " + packageName);
-			log.debug("The url: " + url.getPath());
-			log.debug("The protocol: " + protocol);
-		}
-		
+
+        LOGGER.debug("The packageName: {}", packageName);
+        LOGGER.debug("The url: {}", url.getPath());
+        LOGGER.debug("The protocol: {}", protocol);
+
 		try {
 			if ("file".equals(protocol)) {
 				File file = new File(url.toURI());
@@ -128,8 +117,7 @@ public class ClassScanner {
 				loadJarClass(jarFile, clazzs);
 			}
 		} catch (URISyntaxException | IOException e) {
-			log.error(e);
-			e.printStackTrace();
+		    LOGGER.error("get jar file error!");
 		}
 		flag = false;
 		return clazzs;
@@ -139,11 +127,9 @@ public class ClassScanner {
 	 * 加载文件夹中的类文件
 	 */
 	private static void loadFileClass(String packageName, File file, List<Class<?>> clazzs) {
-		
-		if (log.isDebugEnabled()) {
-			log.debug("in loadFileClass the packageName: " + packageName);
-			log.debug("in loadFileClass the fileName: " + file.getName());
-		}
+
+        LOGGER.debug("in loadFileClass the packageName: {}", packageName);
+        LOGGER.debug("in loadFileClass the fileName: {}", file.getName());
 		// 如果是目录，递归调用
 		if (file.isDirectory()) {
 
@@ -186,8 +172,7 @@ public class ClassScanner {
 			Class<?> clazz = Class.forName(name);
 			clazzs.add(clazz);
 		} catch (ClassNotFoundException e) {
-		    log.error(e);
-		    e.printStackTrace();
+		    LOGGER.error("class not found: {}", name);
 		}
 	}
 	
@@ -195,8 +180,8 @@ public class ClassScanner {
 	 * 获取扫描路径。
 	 */
 	private static String getPackageName(String fileName) {
-		PropertiesUtil propertiesUtil = null;
-		InputStream is = null;
+		PropertiesUtil propertiesUtil;
+		InputStream is;
 		String packageName = null;
 		
 		// 构造绝对路径
@@ -214,10 +199,8 @@ public class ClassScanner {
 				if (null != is) {
 					propertiesUtil = new PropertiesUtil(is);
 					packageName = ((String) propertiesUtil.getValue(PACKAGE_NAME));
-					
-					if (log.isDebugEnabled()) {
-						log.debug(packageName);
-					}
+
+					LOGGER.error("in method getPackageName() the packageName is: {}", packageName);
 				}
 			}
 		}

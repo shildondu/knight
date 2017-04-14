@@ -1,24 +1,5 @@
 package com.shildon.knight.mvc;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
-import javax.servlet.ServletConfig;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-
 import com.alibaba.fastjson.JSON;
 import com.shildon.knight.core.ApplicationContext;
 import com.shildon.knight.core.ClassScanner;
@@ -27,6 +8,22 @@ import com.shildon.knight.core.support.WebApplicationContext;
 import com.shildon.knight.ioc.annotation.Bean;
 import com.shildon.knight.mvc.annotation.RequestMapping;
 import com.shildon.knight.util.ReflectUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 请求分发器。
@@ -39,7 +36,7 @@ public class DispatcherServlet extends HttpServlet {
 	private ApplicationContext webApplicationContext;
 	private Map<String, Method> requestMap;
 	
-	private static final Log log = LogFactory.getLog(DispatcherServlet.class);
+	private static final Logger LOGGER = LoggerFactory.getLogger(DispatcherServlet.class);
 
 	private static final long serialVersionUID = 1L;
 
@@ -61,28 +58,22 @@ public class DispatcherServlet extends HttpServlet {
 			
 			for (Method method : handlerMethods) {
 				Annotation annotation = method.getAnnotation(RequestMapping.class);
-				String uri;
+				String uri = "";
 
 				try {
 					uri = (String) annotation.annotationType().getMethod("value").invoke(annotation);
 					requestMap.put(uri, method);
-					
-					if (log.isDebugEnabled()) {
-						log.debug(method.getName() + " -> " + uri);
-					}
-					
+
+					LOGGER.debug("{} -> {}", method.getName(), uri);
 				} catch (IllegalAccessException | IllegalArgumentException
 						| InvocationTargetException | NoSuchMethodException
 						| SecurityException e) {
-					log.error(e);
-					e.printStackTrace();
+				    LOGGER.error("get requeset map error! uri: {}", uri);
 				}
 			}
 		}
-		
-		if (log.isDebugEnabled()) {
-			log.debug("init dispatcher servlet successfully!");
-		}
+
+		LOGGER.debug("init dispatcher servlet successfully!");
 	}
 	
 	@Override
@@ -120,16 +111,12 @@ public class DispatcherServlet extends HttpServlet {
 							if (null != value) {
 								field.setAccessible(true);
 								// TODO
-								field.set(methodParameters[i], value);;
+								field.set(methodParameters[i], value);
 							}
 						}
-					} catch (InstantiationException | IllegalAccessException e) {
-						log.error(e);
-						e.printStackTrace();
-					} catch (NoSuchMethodException e) {
-						e.printStackTrace();
-					} catch (InvocationTargetException e) {
-						e.printStackTrace();
+					} catch (InstantiationException | IllegalAccessException |
+                            NoSuchMethodException | InvocationTargetException e) {
+						LOGGER.error("instantiate bean: {} fail!", methodParameterClazzs[i].getName());
 					}
 				}
 			}
@@ -140,8 +127,7 @@ public class DispatcherServlet extends HttpServlet {
 						methodParameters);
 			} catch (IllegalAccessException | IllegalArgumentException
 					| InvocationTargetException e) {
-				log.error(e);
-				e.printStackTrace();
+			    LOGGER.error("invoke method: {} fail!", method.getName());
 			}
 			response.setContentType("application/json");
 			String jsonResult = JSON.toJSONString(result);
