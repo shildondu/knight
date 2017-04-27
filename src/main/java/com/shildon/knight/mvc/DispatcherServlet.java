@@ -65,8 +65,10 @@ public class DispatcherServlet extends HttpServlet {
 					requestMap.put(uri, method);
 
 					LOGGER.debug("{} -> {}", method.getName(), uri);
-				} catch (IllegalAccessException | IllegalArgumentException
-						| InvocationTargetException | NoSuchMethodException
+				} catch (IllegalAccessException
+						| IllegalArgumentException
+						| InvocationTargetException
+						| NoSuchMethodException
 						| SecurityException e) {
 				    LOGGER.error("get requeset map error! uri: {}", uri);
 				}
@@ -125,7 +127,8 @@ public class DispatcherServlet extends HttpServlet {
 			try {
 				result = method.invoke(webApplicationContext.getBean(method.getDeclaringClass()),
 						methodParameters);
-			} catch (IllegalAccessException | IllegalArgumentException
+			} catch (IllegalAccessException
+					| IllegalArgumentException
 					| InvocationTargetException e) {
 			    LOGGER.error("invoke method: {} fail!", method.getName());
 			}
